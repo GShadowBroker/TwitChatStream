@@ -1,0 +1,49 @@
+'use strict';
+
+const Twit = require('twit');
+const config = require('./config');
+
+const T = new Twit(config.credentials);
+
+let stream = T.stream('statuses/filter', { track: '#RedeBBB' });
+let isStreamStopped = false;
+
+module.exports = (io) => {
+    io.on('connection', (socket) => {
+
+        console.log('Sockets connected.');
+
+        socket.on('start stream', () => {
+            console.log('Started streaming tweets');
+
+            if (!isStreamStopped) {
+                stream.stop();
+            }
+
+            stream.on('tweet', function (tweet) {
+                if (!tweet.retweeted_status) {
+                    console.log(`Sending ${tweet.user.screen_name}'s tweet.`);
+                    socket.emit('updateTweets', tweet);
+                }
+            });
+
+            stream.start();
+
+            isStreamStopped = false;
+        });
+
+        socket.on('restart stream', () => {
+            console.log('Restarted streaming.');
+            stream.start();
+            isStreamStopped = false;
+        })
+
+        socket.on('stop stream', () => {
+            console.log('Stopped streaming.');
+            stream.stop();
+            isStreamStopped = true;
+        });
+    });
+
+    io.on('disconnect', () => console.log('A user has disconnected.'))
+};
