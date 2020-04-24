@@ -38,10 +38,7 @@ export default {
     },
     mounted() {
         this.socket.on('updateTweets', (tweet) => {
-            if (this.tweets.length === 0) {
-                this.tweets.push(tweet)
-                this.loadingTweets = false
-            } else if (this.tweets.length <= 99) {
+            if (this.tweets.length <= 99) {
                 this.tweets.push(tweet)
                 this.loadingTweets = false
             } else {

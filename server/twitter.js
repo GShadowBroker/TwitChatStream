@@ -20,7 +20,7 @@ module.exports = (io) => {
                 stream.stop();
             }
 
-            stream.on('tweet', function (tweet) { //This is WRONG! Don't put an event handler into another! You'll get duplicate messages.
+            stream.on('tweet', function (tweet) {
                 if (!tweet.retweeted_status && !tweet.in_reply_to_status_id_str) {
                     console.log(`Sending ${tweet.user.screen_name}'s tweet.`);
                     socket.emit('updateTweets', tweet);
@@ -28,7 +28,6 @@ module.exports = (io) => {
             });
 
             stream.start();
-
             isStreamStopped = false;
         });
 
